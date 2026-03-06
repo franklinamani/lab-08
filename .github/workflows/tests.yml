@@ -1,4 +1,4 @@
-name: Android / Gradle CI
+name: Java CI (JUnit without Gradle)
 
 on:
   push:
@@ -20,19 +20,28 @@ jobs:
           distribution: 'temurin'
           java-version: '17'
 
-      - name: Cache Gradle
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.gradle/caches
-            ~/.gradle/wrapper
-          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle*', '**/gradle-wrapper.properties') }}
-          restore-keys: |
-            ${{ runner.os }}-gradle-
+      - name: Download JUnit and Hamcrest
+        run: |
+          curl -L -o junit-4.13.2.jar https://repo1.maven.org/maven2/junit/junit/4.13.2/junit-4.13.2.jar
+          curl -L -o hamcrest-core-1.3.jar https://repo1.maven.org/maven2/org/hamcrest/hamcrest-core/1.3/hamcrest-core-1.3.jar
 
-      - name: Grant execute permission for gradlew
-        run: chmod +x gradlew
+      - name: Compile main sources
+        run: |
+          mkdir -p build/classes/main
+          find app/src/main/java -name "*.java" > sources_main.txt
+          if [ -s sources_main.txt ]; then
+            javac -cp . -d build/classes/main @sources_main.txt
+          fi
 
-      - name: Run unit tests
-        run: ./gradlew test --no-daemon
+      - name: Compile test sources
+        run: |
+          mkdir -p build/classes/test
+          find app/src/test/java -name "*.java" > sources_test.txt
+          if [ -s sources_test.txt ]; then
+            javac -cp build/classes/main:junit-4.13.2.jar:hamcrest-core-1.3.jar -d build/classes/test @sources_test.txt
+          fi
+
+      - name: Run JUnit tests
+        run: |
+          java -cp build/classes/main:build/classes/test:junit-4.13.2.jar:hamcrest-core-1.3.jar org.junit.runner.JUnitCore com.example.lab8.CustomListTest
 
