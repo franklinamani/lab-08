@@ -23,5 +23,35 @@ public class CustomListTest {
         cityList.addCity(edmonton);
         assertTrue(cityList.hasCity(edmonton));
     }
+
+    @Test
+    public void deleteCity_removesExistingCity() {
+        CustomList cityList = mockCityList();
+        City edmonton = new City("Edmonton", "Alberta");
+        City calgary = new City("Calgary", "Alberta");
+
+        cityList.addCity(edmonton);
+        cityList.addCity(calgary);
+
+        // both cities present
+        assertTrue(cityList.hasCity(edmonton));
+        assertTrue(cityList.hasCity(calgary));
+
+        // delete one city
+        cityList.deleteCity(edmonton);
+
+        // edmonton gone, calgary still present
+        assertFalse(cityList.hasCity(edmonton));
+        assertTrue(cityList.hasCity(calgary));
+    }
+
+    @Test(expected = IllegalArgumentException.class)
+    public void deleteCity_throwsWhenCityNotPresent() {
+        CustomList cityList = mockCityList();
+        City edmonton = new City("Edmonton", "Alberta");
+
+        // deleting a city that is not in the list should throw
+        cityList.deleteCity(edmonton);
+    }
 }
 
