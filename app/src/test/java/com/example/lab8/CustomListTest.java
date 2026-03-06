@@ -53,5 +53,25 @@ public class CustomListTest {
         // deleting a city that is not in the list should throw
         cityList.deleteCity(edmonton);
     }
+
+    @Test
+    public void countCities_tracksNumberOfCities() {
+        CustomList cityList = mockCityList();
+
+        // initially empty
+        org.junit.Assert.assertEquals(0, cityList.countCities());
+
+        City edmonton = new City("Edmonton", "Alberta");
+        City calgary = new City("Calgary", "Alberta");
+
+        cityList.addCity(edmonton);
+        org.junit.Assert.assertEquals(1, cityList.countCities());
+
+        cityList.addCity(calgary);
+        org.junit.Assert.assertEquals(2, cityList.countCities());
+
+        cityList.deleteCity(edmonton);
+        org.junit.Assert.assertEquals(1, cityList.countCities());
+    }
 }
 
